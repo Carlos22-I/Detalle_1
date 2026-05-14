@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Para mi princesita Marita 💖</title>
+    <title>💖 Para mi princesita Marita 💖</title>
+    
+    <!-- Favicon con corazón (logo de la pestaña) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ff4d6d' d='M50,88.8 C50,88.8 10,55 10,35 C10,22 20,10 35,10 C45,10 50,18 50,18 C50,18 55,10 65,10 C80,10 90,22 90,35 C90,55 50,88.8 50,88.8 Z'%3E%3C/path%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23ff4d6d' d='M50,88.8 C50,88.8 10,55 10,35 C10,22 20,10 35,10 C45,10 50,18 50,18 C50,18 55,10 65,10 C80,10 90,22 90,35 C90,55 50,88.8 50,88.8 Z'%3E%3C/path%3E%3C/svg%3E">
+    
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -36,7 +41,7 @@
             z-index: 0;
         }
 
-        .bg-flower i {
+        .bg-flower i, .bg-flower div {
             position: absolute;
             font-size: 2rem;
             opacity: 0.3;
@@ -266,14 +271,12 @@
         🌼 ❀ 🌸 ❀ 🌼
     </div>
 
-    <!-- Mensaje breve pero profundo -->
     <div class="short-message">
         <p>✨ <strong>Mi princesita,</strong> cuando sonríes, el mundo se llena de flores y magia. ✨</p>
         <p>Tu inteligencia me asombra, tu gran corazón me hace el hombre más afortunado.</p>
         <p>Eres mi <strong>alegría</strong>, mi <strong>amorcita</strong>, y por siempre mi lugar favorito. 💕</p>
     </div>
 
-    <!-- Flores interactivas -->
     <div class="flower-gallery">
         <div class="flower-item">🌷</div>
         <div class="flower-item">🌹</div>
@@ -282,10 +285,9 @@
         <div class="flower-item">🌺</div>
     </div>
 
-    <!-- Botón mágico -->
     <button class="magic-btn" id="magicButton">🌻 Toca aqui, mi amorcita 🌻</button>
     <div id="sweetMsg" class="sweet-message">
-        💗 <strong>¡Te AMO, María!</strong> 💗 <br>
+        💗 <strong>¡Te AMO, Marita!</strong> 💗 <br>
         Eres mi sueño hecho realidad, cada día me enamoro más de tu sonrisa y tu alma hermosa. <br>
         — Con todo mi ser, <strong>Carlitos</strong> 🧸💖
     </div>
@@ -301,44 +303,41 @@
     function createFloatingFlowers() {
         const container = document.getElementById('flowerBg');
         const flowersList = ['🌸','🌼','🌻','🌺','💐','🌷','🌸','🌼','🌺','🌸','🌼','🏵️'];
-        for (let i = 0; i < 45; i++) {
-            let flower = document.createElement('i');
-            flower.classList.add('fas', 'fa-seedling'); // fallback pero mejor usar emoji
-            flower.innerHTML = flowersList[Math.floor(Math.random() * flowersList.length)];
+        for (let i = 0; i < 90; i++) {
+            let flower = document.createElement('div');
+            flower.textContent = flowersList[Math.floor(Math.random() * flowersList.length)];
             flower.style.position = 'absolute';
-            flower.style.fontSize = (Math.random() * 28 + 16) + 'px';
+            flower.style.fontSize = (Math.random() * 32 + 20) + 'px';
             flower.style.left = Math.random() * 100 + '%';
-            flower.style.animationDuration = Math.random() * 14 + 6 + 's';
+            flower.style.animationDuration = Math.random() * 20 + 12 + 's';
             flower.style.animationDelay = Math.random() * 12 + 's';
-            flower.style.opacity = Math.random() * 0.5 + 0.2;
+            flower.style.opacity = Math.random() * 8 + 6;
             flower.style.transform = `rotate(${Math.random() * 360}deg)`;
             container.appendChild(flower);
         }
     }
     createFloatingFlowers();
 
-    // 2. Efecto de corazones al hacer clic en cualquier lugar (para que ella interactúe)
+    // 2. Efecto de corazones al hacer clic en cualquier lugar
     document.body.addEventListener('click', function(e) {
-        // Evitar que salgan muchos corazones si se hace clic en el botón (también estará bien)
         const heart = document.createElement('div');
         heart.classList.add('floating-heart');
         heart.innerHTML = '❤️';
-        heart.style.left = (e.clientX - 20) + 'px';
-        heart.style.top = (e.clientY - 20) + 'px';
+        heart.style.left = (e.clientX - 50) + 'px';
+        heart.style.top = (e.clientY - 50) + 'px';
         document.body.appendChild(heart);
         setTimeout(() => { heart.remove(); }, 1200);
     });
 
-    // 3. Botón mágico muestra mensaje + efecto adicional + confetti de pétalos
+    // 3. Botón mágico muestra mensaje + confeti de flores y corazones
     const magicBtn = document.getElementById('magicButton');
     const sweetMsgDiv = document.getElementById('sweetMsg');
 
     magicBtn.addEventListener('click', function(event) {
-        event.stopPropagation(); // Evita que el body también dispare corazón justo ahí, pero da igual
+        event.stopPropagation();
         sweetMsgDiv.style.display = 'block';
-        // Lanzar "confetti" de flores (efecto visual)
         createFlowerConfetti();
-        // También generar varios corazones alrededor del botón
+        // Lanzar corazones alrededor del botón
         for (let i = 0; i < 12; i++) {
             setTimeout(() => {
                 let fakeHeart = document.createElement('div');
@@ -350,13 +349,6 @@
                 setTimeout(() => fakeHeart.remove(), 1300);
             }, i * 70);
         }
-        // Después de 3 segundos desaparece el mensaje (opcional, pero ella podrá leerlo)
-        setTimeout(() => {
-            if(sweetMsgDiv.style.display === 'block') {
-                // No lo eliminamos automáticamente, mejor que quede para que lo lea, pero si quieres fade out lento no pasa nada.
-                // Mejor lo dejamos visible hasta que se recargue o toque de nuevo
-            }
-        }, 100);
     });
 
     function createFlowerConfetti() {
@@ -371,25 +363,23 @@
         document.body.appendChild(confettiContainer);
         
         const petals = ['🌸','🌼','🌺','🌷','💮','🌸','🌻'];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 200; i++) {
             let petal = document.createElement('div');
-            petal.innerText = petals[Math.floor(Math.random() * petals.length)];
+            petal.textContent = petals[Math.floor(Math.random() * petals.length)];
             petal.style.position = 'absolute';
             petal.style.left = Math.random() * 100 + '%';
             petal.style.top = '-10%';
-            petal.style.fontSize = (Math.random() * 25 + 15) + 'px';
+            petal.style.fontSize = (Math.random() * 35 + 25) + 'px';
             petal.style.opacity = Math.random() * 0.8 + 0.3;
             petal.style.animation = `fallPetal ${Math.random() * 2 + 2}s linear forwards`;
             petal.style.transform = `rotate(${Math.random() * 360}deg)`;
             confettiContainer.appendChild(petal);
-            
-            setTimeout(() => petal.remove(), 3000);
+            setTimeout(() => petal.remove(), 8000);
         }
-        
         setTimeout(() => confettiContainer.remove(), 3500);
     }
 
-    // Agregar keyframes de caída si no existe
+    // Agregar keyframes de caída
     const styleSheet = document.createElement("style");
     styleSheet.textContent = `
         @keyframes fallPetal {
@@ -399,7 +389,7 @@
     `;
     document.head.appendChild(styleSheet);
 
-    // Opcional: asegurar que al hacer clic en las flores de la galería, también reaccionen
+    // 4. Flores de la galería al hacer clic también lanzan mini flores
     const flowersItems = document.querySelectorAll('.flower-item');
     flowersItems.forEach(flower => {
         flower.addEventListener('click', (e) => {
