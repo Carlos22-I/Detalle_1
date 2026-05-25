@@ -21,26 +21,59 @@ const slides = [
     { type: "img", src: "bebe_feliz_mirador.jpeg", text: "Te mereces mucho más de lo que puedo dar, pero me esforzaré por darte todo. 🎁" },
     { type: "img", src: "happy_cusco.jpeg", text: "Tu felicidad es la mía, por siempre. 🥰" },
     { type: "img", src: "juntos.jpeg", text: "Juntos formamos el mejor equipo del mundo. 🤝💕" },
-    { type: "img", src: "juntos_piscina_doyunbeso.jpeg", text: "Los problemas ni dificultades puedran apagar nuestro amor. 💦❤️" },
+    { type: "img", src: "juntos_piscina_doyunbeso.jpeg", text: "El agua no puede apagar nuestro amor. 💦❤️" },
     { type: "img", src: "juntos1.jpeg", text: "Cada día a tu lado es un nuevo capítulo de felicidad. 📖✨" }
 ];
 
 let currentIndex = 0;
 let autoInterval = null;
-let userInteracted = false; // Bandera para saber si ya se eliminó el overlay
+let userInteracted = false;
+let waitingForVideoEnd = false; // Para saber si estamos esperando que termine el video
 
 const mediaContainer = document.getElementById('mediaContainer');
 const overlayText = document.getElementById('overlayText');
 
-// Función para cambiar de slide (imagen o video)
+// Función para avanzar al siguiente slide manualmente o al terminar video
+function nextSlide() {
+    if (waitingForVideoEnd) {
+        // Si estábamos esperando el fin del video, limpiamos esa bandera
+        waitingForVideoEnd = false;
+    }
+    currentIndex = (currentIndex + 1) % slides.length;
+    changeSlide(currentIndex);
+    
+    // Reiniciar el intervalo automático (si no estamos en un video que espera terminar)
+    if (autoInterval) clearInterval(autoInterval);
+    // Solo reiniciar el intervalo si el nuevo slide NO es video (porque si es video, no debe cambiar hasta que termine)
+    const nextSlideType = slides[currentIndex].type;
+    if (nextSlideType !== 'video') {
+        startAutoSlide();
+    }
+}
+
 function changeSlide(index) {
     const slide = slides[index % slides.length];
     mediaContainer.innerHTML = '';
     
+    // Si el slide es video, detener el intervalo automático para que no cambie antes de terminar
+    if (slide.type === "video") {
+        if (autoInterval) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+        }
+        waitingForVideoEnd = true;
+    } else {
+        // Para imágenes, si el intervalo no está activo, lo reactivamos
+        if (!autoInterval && userInteracted) {
+            startAutoSlide();
+        }
+        waitingForVideoEnd = false;
+    }
+    
     if (slide.type === "video") {
         const video = document.createElement('video');
         video.src = basePath + fixFileName(slide.src);
-        video.loop = true;
+        video.loop = false;      // No repetir, queremos que termine
         video.muted = true;
         video.playsInline = true;
         video.style.width = '100%';
@@ -48,20 +81,13 @@ function changeSlide(index) {
         video.style.objectFit = 'contain';
         video.style.backgroundColor = '#ffd9e6';
         
-        // Solo intentar reproducir si el usuario ya interactuó
-        if (userInteracted) {
-            video.autoplay = true;
-            video.addEventListener('loadedmetadata', () => {
-                video.play().catch(e => console.log("Error reproduciendo video:", e));
-            });
-            // Intento adicional después de agregar al DOM
-            setTimeout(() => {
-                if (video.paused) video.play().catch(e => console.log("Fallo segundo intento"));
-            }, 100);
-        }
+        // Evento cuando el video termina: avanzar al siguiente
+        video.addEventListener('ended', () => {
+            nextSlide();
+        });
         
         video.addEventListener('error', () => {
-            // Fallback a imagen si el video no existe
+            // Fallback: mostrar imagen
             const fallbackImg = document.createElement('img');
             fallbackImg.src = basePath + "felices_de_estar_juntos.jpeg";
             fallbackImg.alt = "Recuerdo";
@@ -70,9 +96,15 @@ function changeSlide(index) {
             fallbackImg.style.objectFit = 'contain';
             mediaContainer.innerHTML = '';
             mediaContainer.appendChild(fallbackImg);
+            // Al fallar, también pasar al siguiente después de un tiempo (opcional)
+            setTimeout(() => nextSlide(), 4000);
         });
         
         mediaContainer.appendChild(video);
+        
+        if (userInteracted) {
+            video.play().catch(e => console.log("Error reproduciendo video:", e));
+        }
     } else {
         const img = document.createElement('img');
         img.src = basePath + fixFileName(slide.src);
@@ -98,22 +130,28 @@ function changeSlide(index) {
 function startAutoSlide() {
     if (autoInterval) clearInterval(autoInterval);
     autoInterval = setInterval(() => {
-        currentIndex = (currentIndex + 1) % slides.length;
-        changeSlide(currentIndex);
+        // Solo avanzar si no estamos esperando que termine un video
+        if (!waitingForVideoEnd) {
+            nextSlide();
+        }
     }, 7000);
 }
 
-// Avance manual al hacer clic en el contenedor
+// Al hacer clic en el contenedor multimedia se avanza manualmente (también interrumpe el video si está sonando)
 mediaContainer.addEventListener('click', (e) => {
     e.stopPropagation();
-    currentIndex = (currentIndex + 1) % slides.length;
-    changeSlide(currentIndex);
-    clearInterval(autoInterval);
-    startAutoSlide();
+    // Si hay un video reproduciéndose, podemos detenerlo y pasar al siguiente
+    if (waitingForVideoEnd) {
+        const currentVideo = document.querySelector('#mediaContainer video');
+        if (currentVideo) {
+            currentVideo.pause(); // opcional
+        }
+    }
+    nextSlide();
 });
 
 // ------------------- CONTADOR DE ANIVERSARIO -------------------
-const startDate = new Date(2025, 4, 28, 0, 0, 0); // 28 de mayo de 2025
+const startDate = new Date(2025, 4, 28, 0, 0, 0); // 28 de mayo de 2025 (mes 4 = mayo)
 function updateCounter() {
     const now = new Date();
     const diff = now - startDate;
@@ -196,24 +234,14 @@ function startMusicAndRemoveOverlay() {
             overlay.style.display = 'none';
         }, 800);
     }
-    // Marcar que el usuario ya interactuó
     userInteracted = true;
-    // Iniciar carrusel
     changeSlide(0);
-    startAutoSlide();
-    // Si el primer slide es video, forzar reproducción
-    const firstSlide = slides[0];
-    if (firstSlide.type === "video") {
-        setTimeout(() => {
-            const video = document.querySelector('#mediaContainer video');
-            if (video && video.paused) {
-                video.play().catch(e => console.log("No se pudo reproducir video al inicio"));
-            }
-        }, 300);
+    // Solo iniciar auto slide si el primer elemento no es video
+    if (slides[0].type !== 'video') {
+        startAutoSlide();
     }
 }
 
-// Al hacer clic en cualquier parte (incluyendo el overlay) se inicia la magia
 document.body.addEventListener('click', () => {
     if (overlay && overlay.style.display !== 'none') {
         startMusicAndRemoveOverlay();
