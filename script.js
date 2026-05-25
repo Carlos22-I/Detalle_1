@@ -21,7 +21,7 @@ const slides = [
     { type: "img", src: "bebe_feliz_mirador.jpeg", text: "Te mereces mucho más de lo que puedo dar, pero me esforzaré por darte todo. 🎁" },
     { type: "img", src: "happy_cusco.jpeg", text: "Tu felicidad es la mía, por siempre. 🥰" },
     { type: "img", src: "juntos.jpeg", text: "Juntos formamos el mejor equipo del mundo. 🤝💕" },
-    { type: "img", src: "juntos_piscina_doyunbeso.jpeg", text: "El agua no puede apagar nuestro amor. 💦❤️" },
+    { type: "img", src: "juntos_piscina_doyunbeso.jpeg", text: "Las dificultades y problemas no podran apagar nuestro amor. 💦❤️" },
     { type: "img", src: "juntos1.jpeg", text: "Cada día a tu lado es un nuevo capítulo de felicidad. 📖✨" }
 ];
 
