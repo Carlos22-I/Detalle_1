@@ -1,40 +1,41 @@
 // ------------------- CONFIGURACIÓN DEL CARRUSEL -------------------
-// Ruta base de las imágenes (carpeta images/)
 const basePath = "images/";
 
-// Función para limpiar nombres con espacios (si los mantienes, usa encodeURI)
+// Función para codificar nombres (por si acaso)
 function fixFileName(name) {
-    return encodeURI(name); // convierte espacios a %20
+    return encodeURI(name);
 }
 
-// Lista de recuerdos (imagen, video y textos)
+// LISTA COMPLETA DE RECUERDOS (con todas tus imágenes + video)
 const slides = [
     { type: "img", src: "bebe_feliz.jpeg", text: "Desde que te conocí, me enamoré sin darme cuenta. ✨" },
     { type: "img", src: "renegoncita_bella.jpeg", text: "Eres mi niña preciosa, mi renegoncita bella y guapa. 🌹" },
     { type: "img", src: "guapa.jpeg", text: "Cada día me enseñas que puedo ser mejor de lo que soy. 💪" },
     { type: "img", src: "cusco_sonrisita.jpeg", text: "Me enseñaste el verdadero significado del esfuerzo y la valentía. 🌟" },
-    { type: "video", src: "felices_de_estar_juntos.mp4", text: "Con esa sonrisita que me cautiva y enamora todos los días… 💖" },
-    { type: "img", src: "beso_a mi_bebe.jpeg", text: "Te amo más que a mí mismo, eres mi vida entera. 💕" },
-    { type: "img", src: "juntos en cusco.jpeg", text: "Desde la primera vez que fuimos a Cusco, mi vida cambió para siempre. 🏔️" },
+    { type: "video", src: "felices_de_estar_juntos.mp4", text: "Con esa sonrisita que me cautiva y enamora todos los días… 💖" }, // video mudo
+    { type: "img", src: "beso_a_mi_bebe.jpeg", text: "Te amo más que a mí mismo, eres mi vida entera. 💕" },
+    { type: "img", src: "beso_juntos.jpeg", text: "Cada beso tuyo es un pedacito de cielo. 😘" },
+    { type: "img", src: "juntos_en_cusco.jpeg", text: "Desde la primera vez que fuimos a Cusco, mi vida cambió para siempre. 🏔️" },
     { type: "img", src: "juntos_mirador.jpeg", text: "No cambiaría nada, porque a tu lado todo es perfecto. 🌄" },
     { type: "img", src: "feliz_y_bella_cusco.jpeg", text: "Haces que mis días sean mejores, eres mi sol. ☀️" },
     { type: "img", src: "juntos_piscina.jpeg", text: "Quiero que sepas: TE AMO CON TODO MI CORAZÓN. ❤️" },
     { type: "img", src: "juntos_ampay.jpeg", text: "Eres la mujer con quien quiero pasar el resto de mi vida. 👰🤵" },
-    { type: "img", src: "bebe_feliz mirador.jpeg", text: "Te mereces mucho más de lo que puedo dar, pero me esforzaré por darte todo. 🎁" }
+    { type: "img", src: "bebe_feliz_mirador.jpeg", text: "Te mereces mucho más de lo que puedo dar, pero me esforzaré por darte todo. 🎁" },
+    { type: "img", src: "happy_cusco.jpeg", text: "Tu felicidad es la mía, por siempre. 🥰" },
+    { type: "img", src: "juntos.jpeg", text: "Juntos formamos el mejor equipo del mundo. 🤝💕" },
+    { type: "img", src: "juntos_piscina_doyunbeso.jpeg", text: "El agua no puede apagar nuestro amor. 💦❤️" },
+    { type: "img", src: "juntos1.jpeg", text: "Cada día a tu lado es un nuevo capítulo de felicidad. 📖✨" }
 ];
 
 let currentIndex = 0;
 let autoInterval = null;
-let isVideoPlaying = false;
 
-// Elementos DOM
 const mediaContainer = document.getElementById('mediaContainer');
 const overlayText = document.getElementById('overlayText');
 
 // Función para cambiar de slide (imagen o video)
 function changeSlide(index) {
     const slide = slides[index % slides.length];
-    // Limpiar contenedor
     mediaContainer.innerHTML = '';
     
     if (slide.type === "video") {
@@ -47,11 +48,21 @@ function changeSlide(index) {
         video.style.width = '100%';
         video.style.height = '100%';
         video.style.objectFit = 'cover';
+        video.addEventListener('error', () => {
+            // Si el video no existe, mostrar imagen de respaldo
+            const fallbackImg = document.createElement('img');
+            fallbackImg.src = basePath + "felices_de_estar_juntos.jpeg";
+            fallbackImg.alt = "Recuerdo";
+            fallbackImg.style.width = '100%';
+            fallbackImg.style.height = '100%';
+            fallbackImg.style.objectFit = 'cover';
+            mediaContainer.innerHTML = '';
+            mediaContainer.appendChild(fallbackImg);
+        });
         video.addEventListener('canplay', () => {
             video.play().catch(e => console.log("autoplay permitido"));
         });
         mediaContainer.appendChild(video);
-        isVideoPlaying = true;
     } else {
         const img = document.createElement('img');
         img.src = basePath + fixFileName(slide.src);
@@ -59,8 +70,11 @@ function changeSlide(index) {
         img.style.width = '100%';
         img.style.height = '100%';
         img.style.objectFit = 'cover';
+        img.onerror = () => {
+            // Si la imagen no existe, poner un placeholder
+            img.src = "https://placehold.co/600x600/e6005c/white?text=Te+Amo";
+        };
         mediaContainer.appendChild(img);
-        isVideoPlaying = false;
     }
     
     // Texto con animación
@@ -71,7 +85,7 @@ function changeSlide(index) {
     }, 200);
 }
 
-// Iniciar el carrusel automático cada 7 segundos
+// Iniciar carrusel automático cada 7 segundos
 function startAutoSlide() {
     if (autoInterval) clearInterval(autoInterval);
     autoInterval = setInterval(() => {
@@ -80,7 +94,7 @@ function startAutoSlide() {
     }, 7000);
 }
 
-// Al hacer clic en la foto/video se avanza manualmente
+// Al hacer clic en el contenedor multimedia se avanza manualmente
 mediaContainer.addEventListener('click', (e) => {
     e.stopPropagation();
     currentIndex = (currentIndex + 1) % slides.length;
@@ -90,7 +104,7 @@ mediaContainer.addEventListener('click', (e) => {
 });
 
 // ------------------- CONTADOR DE ANIVERSARIO -------------------
-const startDate = new Date(2024, 4, 25, 0, 0, 0); // 25 de mayo de 2024 (mes 4 = mayo)
+const startDate = new Date(2024, 4, 25, 0, 0, 0); // 25 de mayo de 2024
 function updateCounter() {
     const now = new Date();
     const diff = now - startDate;
@@ -176,11 +190,9 @@ function startMusicAndRemoveOverlay() {
     startAutoSlide();
 }
 
-// Al hacer clic en cualquier parte (incluyendo el overlay) se inicia la magia
+// Al hacer clic en cualquier parte se inicia la magia (si el overlay está visible)
 document.body.addEventListener('click', () => {
     if (overlay && overlay.style.display !== 'none') {
         startMusicAndRemoveOverlay();
     }
 }, { once: false });
-
-// Si el usuario nunca hace clic, el overlay permanece esperando.
