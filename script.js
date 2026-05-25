@@ -27,10 +27,12 @@ const slides = [
 
 let currentIndex = 0;
 let autoInterval = null;
+let userInteracted = false; // Bandera para saber si ya se eliminó el overlay
 
 const mediaContainer = document.getElementById('mediaContainer');
 const overlayText = document.getElementById('overlayText');
 
+// Función para cambiar de slide (imagen o video)
 function changeSlide(index) {
     const slide = slides[index % slides.length];
     mediaContainer.innerHTML = '';
@@ -38,7 +40,6 @@ function changeSlide(index) {
     if (slide.type === "video") {
         const video = document.createElement('video');
         video.src = basePath + fixFileName(slide.src);
-        video.autoplay = true;
         video.loop = true;
         video.muted = true;
         video.playsInline = true;
@@ -47,11 +48,20 @@ function changeSlide(index) {
         video.style.objectFit = 'contain';
         video.style.backgroundColor = '#ffd9e6';
         
-        video.addEventListener('loadedmetadata', () => {
-            video.play().catch(e => console.log("Error reproduciendo video:", e));
-        });
+        // Solo intentar reproducir si el usuario ya interactuó
+        if (userInteracted) {
+            video.autoplay = true;
+            video.addEventListener('loadedmetadata', () => {
+                video.play().catch(e => console.log("Error reproduciendo video:", e));
+            });
+            // Intento adicional después de agregar al DOM
+            setTimeout(() => {
+                if (video.paused) video.play().catch(e => console.log("Fallo segundo intento"));
+            }, 100);
+        }
         
         video.addEventListener('error', () => {
+            // Fallback a imagen si el video no existe
             const fallbackImg = document.createElement('img');
             fallbackImg.src = basePath + "felices_de_estar_juntos.jpeg";
             fallbackImg.alt = "Recuerdo";
@@ -63,9 +73,6 @@ function changeSlide(index) {
         });
         
         mediaContainer.appendChild(video);
-        setTimeout(() => {
-            if (video.paused) video.play().catch(e => console.log("Intento diferido falló"));
-        }, 100);
     } else {
         const img = document.createElement('img');
         img.src = basePath + fixFileName(slide.src);
@@ -80,6 +87,7 @@ function changeSlide(index) {
         mediaContainer.appendChild(img);
     }
     
+    // Texto con animación
     overlayText.style.opacity = '0';
     setTimeout(() => {
         overlayText.textContent = slide.text;
@@ -95,6 +103,7 @@ function startAutoSlide() {
     }, 7000);
 }
 
+// Avance manual al hacer clic en el contenedor
 mediaContainer.addEventListener('click', (e) => {
     e.stopPropagation();
     currentIndex = (currentIndex + 1) % slides.length;
@@ -112,7 +121,6 @@ function updateCounter() {
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     const counterDiv = document.getElementById('timeCounter');
     if (counterDiv) {
-        // Si han pasado más de 365 días, mostramos mensaje especial
         if (days >= 365) {
             counterDiv.innerHTML = `🌹 +365 días · y seguirán · de amor eterno 🌹`;
         } else {
@@ -180,7 +188,7 @@ const overlay = document.getElementById('musicOverlay');
 
 function startMusicAndRemoveOverlay() {
     if (audio) {
-        audio.play().catch(e => console.log("Interacción necesaria"));
+        audio.play().catch(e => console.log("Música requiere interacción"));
     }
     if (overlay) {
         overlay.style.opacity = '0';
@@ -188,10 +196,24 @@ function startMusicAndRemoveOverlay() {
             overlay.style.display = 'none';
         }, 800);
     }
+    // Marcar que el usuario ya interactuó
+    userInteracted = true;
+    // Iniciar carrusel
     changeSlide(0);
     startAutoSlide();
+    // Si el primer slide es video, forzar reproducción
+    const firstSlide = slides[0];
+    if (firstSlide.type === "video") {
+        setTimeout(() => {
+            const video = document.querySelector('#mediaContainer video');
+            if (video && video.paused) {
+                video.play().catch(e => console.log("No se pudo reproducir video al inicio"));
+            }
+        }, 300);
+    }
 }
 
+// Al hacer clic en cualquier parte (incluyendo el overlay) se inicia la magia
 document.body.addEventListener('click', () => {
     if (overlay && overlay.style.display !== 'none') {
         startMusicAndRemoveOverlay();
